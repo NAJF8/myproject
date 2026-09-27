@@ -271,7 +271,7 @@ function App({user}){
   return <div className="app-shell">
     <aside className={`sidebar ${drawer?'open':''}`}><div className="brand"><div className="brand-mark"><Sparkles size={19}/></div><div><strong>مركز التحكم</strong><small>نظامك الشخصي</small></div><button className="mobile-close" onClick={()=>setDrawer(false)}><X size={18}/></button></div><div className="profile"><div className="avatar">م</div><div><strong>مرحباً بك</strong><small>{user?.email||'المالك'}</small></div><ChevronLeft size={17}/></div><nav>{nav.map(([id,label,Icon])=><button key={id} className={page===id?'active':''} onClick={()=>{setPage(id);setDrawer(false)}}><Icon size={19}/><span>{label}</span>{id==='payments'&&<b className="nav-dot">3</b>}</button>)}</nav><div className="sidebar-foot"><div className="mini-card"><Zap size={17}/><div><strong>كل شيء تحت السيطرة</strong><span>{cloudReady?'البيانات موحّدة بين الأجهزة':'جاري مزامنة البيانات...'}</span></div></div><button className="sidebar-settings"><Settings size={17}/> إعدادات الحساب</button></div></aside>
     <main className="main"><header className="topbar"><button className="menu-btn" onClick={()=>setDrawer(true)}><Menu size={21}/></button><div className="search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ابحث في المشاريع والعملاء والدفعات ..."/></div><div className="top-actions"><button className="icon-btn notify"><Bell size={19}/><i/></button><div className="date"><CalendarDays size={18}/><span>الأحد، 27 أيلول 2026</span></div></div></header>
-      <div className="content">{page==='dashboard'&&<Dashboard totals={totals} projects={projects} filtered={filtered} onAdd={()=>setModal('project')} onPage={setPage} />}{page==='projects'&&<Projects projects={filtered} payments={payments} expenses={expenses} onAdd={()=>setModal('project')} onCopy={()=>notify('تم نسخ معرف المشروع')} onEdit={p=>{setEditingProject(p);setModal('editProject')}} onDelete={deleteProject} />}{page==='payments'&&<Payments projects={projects} payments={payments} setPayments={persistPayments} notify={notify} />}{page==='expenses'&&<Expenses projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='domains'&&<Domains projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='ai'&&<AIExpenses projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='settings'&&<SettingsPage projects={projects} payments={payments} expenses={expenses} cloudPath={cloudPath} notify={notify} />}{page!=='dashboard'&&page!=='projects'&&page!=='payments'&&page!=='expenses'&&page!=='domains'&&page!=='ai'&&page!=='settings'&&<Placeholder page={page} onAdd={()=>setModal('project')} />}</div>
+      <div className="content">{page==='dashboard'&&<Dashboard totals={totals} projects={projects} filtered={filtered} onAdd={()=>setModal('project')} onPage={setPage} />}{page==='projects'&&<Projects projects={filtered} payments={payments} expenses={expenses} onAdd={()=>setModal('project')} onCopy={()=>notify('تم نسخ معرف المشروع')} onEdit={p=>{setEditingProject(p);setModal('editProject')}} onDelete={deleteProject} />}{page==='payments'&&<Payments projects={projects} payments={payments} setPayments={persistPayments} notify={notify} />}{page==='expenses'&&<Expenses projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='domains'&&<Domains projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='ai'&&<AIExpenses projects={projects} expenses={expenses} setExpenses={persistExpenses} notify={notify} />}{page==='reports'&&<Reports projects={projects} payments={payments} expenses={expenses} />}{page==='settings'&&<SettingsPage projects={projects} payments={payments} expenses={expenses} cloudPath={cloudPath} notify={notify} />}{page!=='dashboard'&&page!=='projects'&&page!=='payments'&&page!=='expenses'&&page!=='domains'&&page!=='ai'&&page!=='reports'&&page!=='settings'&&<Placeholder page={page} onAdd={()=>setModal('project')} />}</div>
     </main>{modal==='project'&&<Modal title="إضافة مشروع جديد" close={()=>setModal(null)}><form onSubmit={addProject} className="form"><label>اسم المشروع<input name="name" required placeholder="مثال: متجر إلكتروني"/></label><label>اسم العميل<input name="client" required placeholder="مثال: محمد أحمد"/></label><label>نوع المشروع<select name="type"><option>موقع ويب</option><option>متجر إلكتروني</option><option>نظام إدارة</option><option>تطبيق</option><option>مشروع مخصص</option></select></label><div className="money-fields"><label>السعر بالعراقي<input name="priceIqd" type="number" min="0" step="1" placeholder="0"/></label><label>السعر بالدولار<input name="priceUsd" type="number" min="0" step="0.01" placeholder="0"/></label></div><div className="form-actions"><button type="button" className="btn ghost" onClick={()=>setModal(null)}>إلغاء</button><button className="btn primary"><Plus size={17}/> حفظ المشروع</button></div></form></Modal>}{modal==='editProject'&&editingProject&&<Modal title="تعديل المشروع" close={()=>{setModal(null);setEditingProject(null)}}><form onSubmit={saveProjectEdit} className="form"><label>اسم المشروع<input name="name" required defaultValue={editingProject.name}/></label><label>اسم العميل<input name="client" required defaultValue={editingProject.client}/></label><label>نوع المشروع<select name="type" defaultValue={editingProject.type}><option>موقع ويب</option><option>متجر إلكتروني</option><option>نظام إدارة</option><option>تطبيق</option><option>مشروع مخصص</option><option>نظام POS</option><option>نظام ولاء</option></select></label><label>الحالة<select name="status" defaultValue={editingProject.status}><option>فكرة</option><option>قيد التصميم</option><option>قيد البرمجة</option><option>قيد الاختبار</option><option>بانتظار العميل</option><option>منجز</option><option>مكتمل</option><option>تم التسليم</option><option>صيانة</option><option>متوقف</option><option>ملغي</option></select></label><div className="money-fields"><label>السعر بالعراقي<input name="priceIqd" type="number" min="0" step="1" defaultValue={projectPriceIqd(editingProject)}/></label><label>السعر بالدولار<input name="priceUsd" type="number" min="0" step="0.01" defaultValue={projectPriceUsd(editingProject)}/></label></div><label>نسبة الإنجاز<input name="progress" type="number" min="0" max="100" defaultValue={editingProject.progress}/></label><label>موعد التسليم<input name="due" type="date" defaultValue={(editingProject.due||'').replaceAll('/','-')}/></label><div className="form-actions"><button type="button" className="btn ghost" onClick={()=>{setModal(null);setEditingProject(null)}}>إلغاء</button><button className="btn primary"><Check size={17}/> حفظ التعديلات</button></div></form></Modal>}{toast&&<div className="toast"><Check size={17}/>{toast}</div>}
   </div>
 }
@@ -339,6 +339,76 @@ function AIExpenses({projects,expenses,setExpenses,notify}){
   const addAI=e=>{e.preventDefault();if(!projectId)return;const f=new FormData(e.currentTarget);const tool=f.get('tool');const item={id:`EXP-${Date.now()}`,projectId,date:f.get('date'),category:'AI / API',description:tool,aiTool:tool,notes:f.get('notes')||'',amountIqd:Number(f.get('amountIqd')||0),amountUsd:Number(f.get('amountUsd')||0)};setExpenses([item,...expenses]);e.currentTarget.reset();notify('تمت إضافة تكلفة AI وتحديث ربح المشروع');};
   const del=id=>{if(!confirm('حذف تكلفة AI؟'))return;setExpenses(expenses.filter(e=>e.id!==id));notify('تم حذف تكلفة AI وتحديث المشروع');};
   return <><div className="page-head"><div><h1>AI والأدوات</h1><p>تكلفة الذكاء الاصطناعي لكل مشروع بشكل مستقل</p></div></div><div className="panel selector-panel"><label>المشروع<select value={projectId} onChange={e=>setProjectId(e.target.value)}><option value="">— اختر مشروعاً —</option>{projects.map(p=><option key={p.uid||p.id} value={p.id}>{p.name} — {p.client}</option>)}</select></label></div>{!selected?<div className="placeholder panel"><div className="placeholder-icon"><Sparkles size={28}/></div><h1>اختر مشروعاً</h1><p>بعدها أضف تكلفة ChatGPT أو OpenAI أو Claude أو أي أداة AI.</p></div>:<><div className="panel payment-form-panel"><div className="section-heading"><div><h2>إضافة تكلفة AI</h2><p>{selected.name}</p></div></div><form onSubmit={addAI} className="form"><label>الأداة<select name="tool"><option>ChatGPT</option><option>OpenAI API</option><option>Claude</option><option>Gemini</option><option>Cursor</option><option>GitHub Copilot</option><option>أداة AI أخرى</option></select></label><div className="money-fields"><label>التكلفة بالعراقي<input name="amountIqd" type="number" min="0" step="1" placeholder="0"/></label><label>التكلفة بالدولار<input name="amountUsd" type="number" min="0" step="0.01" placeholder="0"/></label></div><label>التاريخ<input name="date" type="date" required/></label><label>ملاحظة<input name="notes" placeholder="مثال: API لهذا المشروع"/></label><div className="form-actions"><button className="btn primary"><Plus size={17}/> حفظ تكلفة AI</button></div></form></div><div className="panel payments-history"><h2>تكاليف AI — {selected.name}</h2>{rows.length===0?<p className="empty-copy">لا توجد تكاليف AI لهذا المشروع بعد.</p>:<div className="table-wrap"><table><thead><tr><th>الأداة</th><th>التاريخ</th><th>IQD</th><th>USD</th><th>ملاحظة</th><th/></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td>{r.aiTool||r.description}</td><td>{r.date}</td><td>{money(expenseIqd(r))}</td><td>{usdMoney(expenseUsd(r))}</td><td>{r.notes||'—'}</td><td><button className="btn ghost" onClick={()=>del(r.id)}>حذف</button></td></tr>)}</tbody></table></div>}</div></>}</>
+}
+
+
+function Reports({projects,payments,expenses}){
+  const [projectId,setProjectId]=useState('');
+  const selected=projects.find(p=>p.id===projectId);
+
+  const totals=projects.reduce((a,p)=>{
+    const f=projectFinancials(p,payments,expenses);
+    a.priceIqd+=projectPriceIqd(p); a.priceUsd+=projectPriceUsd(p);
+    a.receivedIqd+=f.receivedIqd; a.receivedUsd+=f.receivedUsd;
+    a.expensesIqd+=f.expensesIqd; a.expensesUsd+=f.expensesUsd;
+    a.profitIqd+=f.profitIqd; a.profitUsd+=f.profitUsd;
+    return a;
+  },{priceIqd:0,priceUsd:0,receivedIqd:0,receivedUsd:0,expensesIqd:0,expensesUsd:0,profitIqd:0,profitUsd:0});
+
+  const printOne=()=>{
+    if(!selected) return alert('اختر مشروعاً أولاً.');
+    printHtml(`تقرير ${selected.name}`,projectReportMarkup(selected,payments,expenses));
+  };
+
+  const printAll=()=>{
+    if(!projects.length) return alert('لا توجد مشاريع.');
+    const summary=`<div class="header"><h1>التقرير الشامل لجميع المشاريع</h1><div class="muted">عدد المشاريع: ${projects.length}</div></div>
+      <div class="meta">
+        <div class="box"><span>إجمالي الاتفاقات IQD</span><b>${esc(money(totals.priceIqd))}</b></div>
+        <div class="box"><span>إجمالي الاتفاقات USD</span><b>${esc(usdMoney(totals.priceUsd))}</b></div>
+        <div class="box"><span>إجمالي المستلم IQD</span><b>${esc(money(totals.receivedIqd))}</b></div>
+        <div class="box"><span>إجمالي المستلم USD</span><b>${esc(usdMoney(totals.receivedUsd))}</b></div>
+        <div class="box"><span>إجمالي المصاريف IQD</span><b>${esc(money(totals.expensesIqd))}</b></div>
+        <div class="box"><span>إجمالي المصاريف USD</span><b>${esc(usdMoney(totals.expensesUsd))}</b></div>
+        <div class="box profit"><span>صافي الربح IQD</span><b>${esc(money(totals.profitIqd))}</b></div>
+        <div class="box profit"><span>صافي الربح USD</span><b>${esc(usdMoney(totals.profitUsd))}</b></div>
+      </div>`;
+    printHtml('التقرير الشامل لجميع المشاريع',summary+projects.map(p=>projectReportMarkup(p,payments,expenses)).join(''));
+  };
+
+  return <><div className="page-head"><div><h1>التقارير</h1><p>تقرير مشروع واحد أو تقرير شامل يجمع كل المشاريع في ملف واحد</p></div></div>
+    <div className="reports-grid">
+      <div className="panel report-card">
+        <div className="report-icon"><FileText size={25}/></div>
+        <h2>تقرير مشروع واحد</h2>
+        <p>اختر المشروع ثم افتح التقرير للطباعة أو الحفظ بصيغة PDF.</p>
+        <label className="report-select">المشروع
+          <select value={projectId} onChange={e=>setProjectId(e.target.value)}>
+            <option value="">— اختر مشروعاً —</option>
+            {projects.map(p=><option key={p.uid||p.id} value={p.id}>{p.name} — {p.client}</option>)}
+          </select>
+        </label>
+        {selected&&<div className="report-preview-mini">
+          <strong>{selected.name}</strong>
+          <span>{selected.id} · {selected.status} · {Number(selected.progress)||0}%</span>
+        </div>}
+        <button className="btn primary" onClick={printOne}><FileText size={17}/> فتح تقرير المشروع</button>
+      </div>
+
+      <div className="panel report-card">
+        <div className="report-icon"><ClipboardList size={25}/></div>
+        <h2>التقرير الشامل</h2>
+        <p>يجمع ملخص الحسابات ثم تفاصيل جميع المشاريع وراء بعضها داخل تقرير واحد.</p>
+        <div className="report-totals">
+          <div><span>عدد المشاريع</span><strong>{projects.length}</strong></div>
+          <div><span>إجمالي المصاريف</span><strong>{money(totals.expensesIqd)}</strong></div>
+          <div><span>صافي الربح</span><strong>{money(totals.profitIqd)}</strong></div>
+        </div>
+        <button className="btn primary" onClick={printAll}><ClipboardList size={17}/> فتح التقرير الشامل</button>
+      </div>
+    </div>
+    <div className="panel report-note"><strong>حفظ كملف PDF</strong><p>بعد فتح التقرير اختر من نافذة الطباعة: <b>Save as PDF / حفظ كملف PDF</b>. التقرير الشامل ينحفظ كملف واحد ويحتوي كل المشاريع.</p></div>
+  </>;
 }
 
 function SettingsPage({projects,payments,expenses,cloudPath,notify}){
