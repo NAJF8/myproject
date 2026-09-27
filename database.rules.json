@@ -1,8 +1,6 @@
 {
   "rules": {
-    "myproject_data": {
-      ".read": "auth != null",
-      ".write": "auth != null"
-    }
+    ".read": "auth != null",
+    ".write": "auth != null"
   }
 }
