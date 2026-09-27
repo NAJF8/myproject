@@ -26,7 +26,29 @@ const money = n => `${new Intl.NumberFormat('ar-IQ').format(Math.round(Number(n)
 const usdMoney = n => `${new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(Number(n)||0)}`;
 const dualMoney = (iqd,rate) => `${money(iqd)} · ${usdMoney((Number(iqd)||0)/(Number(rate)||1310))}`;
 const statusClass = s => s === 'مكتمل' ? 'success' : s === 'بانتظار العميل' ? 'warning' : s === 'متوقف' ? 'danger' : 'info';
+const readLocalJson = (key,fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (err) {
+    console.error('Invalid local data for', key, err);
+    return fallback;
+  }
+};
 
+
+
+class ErrorBoundary extends React.Component {
+  constructor(props){ super(props); this.state={error:null}; }
+  static getDerivedStateFromError(error){ return {error}; }
+  componentDidCatch(error,info){ console.error('Application error',error,info); }
+  render(){
+    if(this.state.error){
+      return <div className="error-screen"><div className="error-card"><h1>صار خطأ بالواجهة</h1><p>ما راح نخلي الموقع يبقى شاشة بيضاء. جرّب إعادة التحميل، وإذا استمر امسح بيانات الموقع المحلية فقط.</p><button className="btn primary" onClick={()=>location.reload()}>إعادة تحميل</button></div></div>;
+    }
+    return this.props.children;
+  }
+}
 
 function AuthGate({children}){
   const [user,setUser]=useState(undefined);
@@ -63,9 +85,9 @@ function AuthGate({children}){
 
 function App(){
   const [page,setPage] = useState('dashboard'); const [drawer,setDrawer]=useState(false); const [search,setSearch]=useState('');
-  const [projects,setProjects] = useState(()=>JSON.parse(localStorage.getItem('pp-projects')||'null')||seedProjects);
+  const [projects,setProjects] = useState(()=>readLocalJson('pp-projects',seedProjects));
   const [exchangeRate,setExchangeRate] = useState(()=>Number(localStorage.getItem('pp-exchange-rate')||1310));
-  const [payments,setPayments] = useState(()=>JSON.parse(localStorage.getItem('pp-payments')||'null')||seedPayments);
+  const [payments,setPayments] = useState(()=>readLocalJson('pp-payments',seedPayments));
   const [modal,setModal]=useState(null); const [editingProject,setEditingProject]=useState(null); const [toast,setToast]=useState('');
   useEffect(()=>{
     if(modal){
@@ -125,4 +147,4 @@ function SettingsPage({exchangeRate,setExchangeRate}){
 
 function Placeholder({page,onAdd}){const meta={clients:['العملاء','ملفات العملاء والعلاقة المالية لكل عميل',Users],payments:['الدفعات','تتبع المستحقات والدفعات المكتملة',CreditCard],expenses:['المصاريف','مصروفات المشاريع والمصاريف العامة',Receipt],domains:['الدومينات والاشتراكات','تواريخ التجديد والتكاليف القادمة',Globe2],reports:['التقارير','قراءة أعمق لأداء المشاريع والربحية',BarChart3],settings:['الإعدادات','تخصيص النظام والنسخ الاحتياطي',Settings]}[page]||['الصفحة','قيد التجهيز',Gauge]; const Icon=meta[2];return <div className="placeholder panel"><div className="placeholder-icon"><Icon size={28}/></div><h1>{meta[0]}</h1><p>{meta[1]}</p><button className="btn primary" onClick={onAdd}><Plus size={17}/> إضافة جديد</button></div>}
 function Modal({title,close,children}){return <div className="modal-backdrop" onMouseDown={close}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button className="more" onClick={close}><X size={19}/></button></div>{children}</div></div>}
-createRoot(document.getElementById('root')).render(<AuthGate><App/></AuthGate>);
+createRoot(document.getElementById('root')).render(<ErrorBoundary><AuthGate><App/></AuthGate></ErrorBoundary>);
