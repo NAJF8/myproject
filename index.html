@@ -39,5 +39,34 @@
       <div id="boot-fallback"><div id="boot-card"><h1>جاري فتح النظام...</h1><p>إذا استمر التحميل، حدّث الصفحة من زر إعادة التحميل في المتصفح.</p></div></div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      setTimeout(function () {
+        var fallback = document.getElementById('boot-fallback');
+        if (!fallback) return;
+        var moduleScript = document.querySelector('script[type="module"][src]');
+        var src = moduleScript && moduleScript.src;
+        if (!src) {
+          var card = document.getElementById('boot-card');
+          if (card) card.innerHTML = '<h1>تعذر تحميل التطبيق</h1><p>لم يتم العثور على ملف تشغيل الواجهة.</p>';
+          return;
+        }
+
+        var retries = Number(sessionStorage.getItem('app-asset-retry') || '0');
+        if (retries < 2) {
+          sessionStorage.setItem('app-asset-retry', String(retries + 1));
+          var retry = document.createElement('script');
+          retry.type = 'module';
+          retry.src = src + (src.indexOf('?') >= 0 ? '&' : '?') + 'retry=' + Date.now();
+          retry.onerror = function () {
+            var card = document.getElementById('boot-card');
+            if (card) card.innerHTML = '<h1>فشل تحميل التطبيق</h1><p>ملف التشغيل لم يصل من GitHub Pages. اضغط إعادة التحميل بعد ثوانٍ.</p>';
+          };
+          document.body.appendChild(retry);
+        } else {
+          var card = document.getElementById('boot-card');
+          if (card) card.innerHTML = '<h1>فشل بدء التطبيق</h1><p>أغلق الصفحة وافتح رابط /myproject/ من جديد. إذا استمر الخطأ فالمشكلة من ملف التشغيل المنشور.</p>';
+        }
+      }, 3500);
+    </script>
   </body>
 </html>
