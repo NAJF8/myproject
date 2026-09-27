@@ -1,5 +1,10 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/myproject/',
+  base: './',
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: false,
+  },
 });
