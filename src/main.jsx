@@ -67,6 +67,13 @@ function App(){
   const [exchangeRate,setExchangeRate] = useState(()=>Number(localStorage.getItem('pp-exchange-rate')||1310));
   const [payments,setPayments] = useState(()=>JSON.parse(localStorage.getItem('pp-payments')||'null')||seedPayments);
   const [modal,setModal]=useState(null); const [editingProject,setEditingProject]=useState(null); const [toast,setToast]=useState('');
+  useEffect(()=>{
+    if(modal){
+      document.body.classList.add('modal-open');
+      return ()=>document.body.classList.remove('modal-open');
+    }
+    document.body.classList.remove('modal-open');
+  },[modal]);
   const totals = useMemo(()=>projects.reduce((a,p)=>({price:a.price+p.price, received:a.received+p.received, expenses:a.expenses+p.expenses}),{price:0,received:0,expenses:0}),[projects]);
   const filtered = projects.filter(p=>`${p.name} ${p.client} ${p.id}`.includes(search));
   const notify = msg => { setToast(msg); setTimeout(()=>setToast(''),2600); };
