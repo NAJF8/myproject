@@ -84,6 +84,68 @@ const normalizeProjects = input => {
 };
 
 
+const projectFinancials = (p,payments,expenses) => {
+  const rows=payments.filter(x=>x.projectId===p.id);
+  const ex=expenses.filter(x=>x.projectId===p.id);
+  const receivedIqd=rows.reduce((a,x)=>a+paymentIqd(x),0);
+  const receivedUsd=rows.reduce((a,x)=>a+paymentUsd(x),0);
+  const domains=ex.filter(x=>x.category==='Domain');
+  const ai=ex.filter(x=>x.category==='AI / API');
+  const other=ex.filter(x=>!['Domain','AI / API'].includes(x.category));
+  const domainIqd=domains.reduce((a,x)=>a+expenseIqd(x),0);
+  const domainUsd=domains.reduce((a,x)=>a+expenseUsd(x),0);
+  const aiIqd=ai.reduce((a,x)=>a+expenseIqd(x),0);
+  const aiUsd=ai.reduce((a,x)=>a+expenseUsd(x),0);
+  const otherIqd=other.reduce((a,x)=>a+expenseIqd(x),0);
+  const otherUsd=other.reduce((a,x)=>a+expenseUsd(x),0);
+  const expensesIqd=domainIqd+aiIqd+otherIqd;
+  const expensesUsd=domainUsd+aiUsd+otherUsd;
+  return {
+    receivedIqd,receivedUsd,domainIqd,domainUsd,aiIqd,aiUsd,otherIqd,otherUsd,
+    expensesIqd,expensesUsd,
+    remainingIqd:Math.max(projectPriceIqd(p)-receivedIqd,0),
+    remainingUsd:Math.max(projectPriceUsd(p)-receivedUsd,0),
+    profitIqd:projectPriceIqd(p)-expensesIqd,
+    profitUsd:projectPriceUsd(p)-expensesUsd
+  };
+};
+const esc = value => String(value??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const printHtml = (title,body) => {
+  const w=window.open('','_blank','width=1000,height=800');
+  if(!w){ alert('المتصفح منع نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا الموقع.'); return; }
+  w.document.open();
+  w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+  @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;color:#222;margin:0;background:#fff;font-size:12px}
+  h1{font-size:22px;margin:0 0 5px}h2{font-size:15px;margin:18px 0 8px}.muted{color:#666}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:16px}
+  .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.box{border:1px solid #bbb;border-radius:6px;padding:9px}.box span{display:block;color:#666;font-size:10px}.box b{display:block;margin-top:4px;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #bbb;padding:7px;text-align:right}th{background:#f3f3f3}
+  .profit{background:#eef7f1;font-weight:700}.project-section{page-break-inside:avoid;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #ddd}
+  .print-date{margin-top:5px;color:#777;font-size:10px}@media print{button{display:none}}
+  </style></head><body>${body}<script>window.onload=()=>setTimeout(()=>window.print(),250)</script></body></html>`);
+  w.document.close();
+};
+const projectReportMarkup = (p,payments,expenses) => {
+  const f=projectFinancials(p,payments,expenses);
+  return `<section class="project-section"><div class="header"><h1>${esc(p.name)}</h1><div class="muted">${esc(p.id)} — ${esc(p.client)} — ${esc(p.type)}</div><div class="print-date">الحالة: ${esc(p.status)} | الإنجاز: ${Number(p.progress)||0}% | التسليم: ${esc(p.due||'—')}</div></div>
+  <div class="meta">
+    <div class="box"><span>السعر بالعراقي</span><b>${esc(money(projectPriceIqd(p)))}</b></div>
+    <div class="box"><span>السعر بالدولار</span><b>${esc(usdMoney(projectPriceUsd(p)))}</b></div>
+    <div class="box"><span>المستلم بالعراقي</span><b>${esc(money(f.receivedIqd))}</b></div>
+    <div class="box"><span>المستلم بالدولار</span><b>${esc(usdMoney(f.receivedUsd))}</b></div>
+    <div class="box"><span>الباقي بالعراقي</span><b>${esc(money(f.remainingIqd))}</b></div>
+    <div class="box"><span>الباقي بالدولار</span><b>${esc(usdMoney(f.remainingUsd))}</b></div>
+  </div>
+  <h2>التكاليف والربح</h2>
+  <table><thead><tr><th>البند</th><th>IQD</th><th>USD</th></tr></thead><tbody>
+    <tr><td>الدومين</td><td>${esc(money(f.domainIqd))}</td><td>${esc(usdMoney(f.domainUsd))}</td></tr>
+    <tr><td>AI</td><td>${esc(money(f.aiIqd))}</td><td>${esc(usdMoney(f.aiUsd))}</td></tr>
+    <tr><td>مصاريف أخرى</td><td>${esc(money(f.otherIqd))}</td><td>${esc(usdMoney(f.otherUsd))}</td></tr>
+    <tr><td>إجمالي المصاريف</td><td>${esc(money(f.expensesIqd))}</td><td>${esc(usdMoney(f.expensesUsd))}</td></tr>
+    <tr class="profit"><td>الربح الصافي</td><td>${esc(money(f.profitIqd))}</td><td>${esc(usdMoney(f.profitUsd))}</td></tr>
+  </tbody></table></section>`;
+};
+
+
 
 class ErrorBoundary extends React.Component {
   constructor(props){ super(props); this.state={error:null}; }
@@ -186,7 +248,15 @@ function Metric({title,value,trend,caption,icon:Icon,tone}){return <div classNam
 function Stat({label,value,color}){return <div><span><i className={`dot ${color}`}/>{label}</span><strong>{value}</strong></div>}
 function ProjectTable({projects}){return <div className="table-wrap"><table><thead><tr><th>اسم المشروع</th><th>العميل</th><th>الحالة</th><th>القيمة</th><th>الإنجاز</th><th/></tr></thead><tbody>{projects.map(p=><tr key={p.uid||p.id}><td><div className="project-name"><span className={`project-avatar ${p.color}`}>{p.name.slice(0,1)}</span><div><strong>{p.name}</strong><small>{p.id}</small></div></div></td><td>{p.client}</td><td><span className={`status ${statusClass(p.status)}`}>{p.status}</span></td><td><div className="table-money"><span>{money(projectPriceIqd(p))}</span><span>{usdMoney(projectPriceUsd(p))}</span></div></td><td><div className="progress"><span><i style={{width:`${p.progress}%`}}/></span><small>{p.progress}%</small></div></td><td><button className="more"><MoreVertical size={17}/></button></td></tr>)}</tbody></table></div>}
 function ActivityPanel(){return <div className="panel activity-panel"><div className="panel-head"><div><h2>الأنشطة الأخيرة</h2><p>آخر التحديثات على نظامك</p></div><Activity size={19} className="muted"/></div><div className="activities">{activities.map(([text,time,type])=><div className="activity" key={text}><div className={`activity-icon ${type}`}>{type==='payment'?<CreditCard size={16}/>:type==='expense'?<Receipt size={16}/>:type==='project'?<FolderKanban size={16}/>:type==='domain'?<Globe2 size={16}/>:<Users size={16}/>}</div><div><strong>{text}</strong><small>{time}</small></div></div>)}</div><button className="text-btn all-activity">عرض كل الأنشطة <ChevronLeft size={16}/></button></div>}
-function Projects({projects,payments,expenses,onAdd,onCopy,onEdit,onDelete}){return <><div className="page-head"><div><h1>المشاريع</h1><p>تفاصيل السعر والدفعات والمصاريف والربح لكل مشروع</p></div><button className="btn primary" onClick={onAdd}><Plus size={17}/> مشروع جديد</button></div><div className="toolbar panel"><div className="filter-search"><Search size={17}/><input placeholder="ابحث باسم المشروع أو العميل..."/></div><button className="btn ghost"><Tags size={16}/> كل الحالات</button><button className="btn ghost"><CalendarDays size={16}/> 2026</button></div><div className="project-cards">{projects.map(p=>{const rows=payments.filter(x=>x.projectId===p.id);const ex=expenses.filter(x=>x.projectId===p.id);const rIqd=rows.reduce((a,x)=>a+paymentIqd(x),0);const rUsd=rows.reduce((a,x)=>a+paymentUsd(x),0);const domainRows=ex.filter(x=>x.category==='Domain');const aiRows=ex.filter(x=>x.category==='AI / API');const otherRows=ex.filter(x=>!['Domain','AI / API'].includes(x.category));const domainIqd=domainRows.reduce((a,x)=>a+expenseIqd(x),0);const domainUsd=domainRows.reduce((a,x)=>a+expenseUsd(x),0);const aiIqd=aiRows.reduce((a,x)=>a+expenseIqd(x),0);const aiUsd=aiRows.reduce((a,x)=>a+expenseUsd(x),0);const otherIqd=otherRows.reduce((a,x)=>a+expenseIqd(x),0);const otherUsd=otherRows.reduce((a,x)=>a+expenseUsd(x),0);const eIqd=domainIqd+aiIqd+otherIqd;const eUsd=domainUsd+aiUsd+otherUsd;const profitIqd=projectPriceIqd(p)-eIqd;const profitUsd=projectPriceUsd(p)-eUsd;return <div className="project-card panel" key={p.uid||p.id}><div className="project-card-top"><span className={`status ${statusClass(p.status)}`}>{p.status}</span><div style={{display:'flex',gap:8}}><button className="btn ghost" onClick={()=>onEdit(p)}>تعديل</button><button className="btn ghost" onClick={()=>onDelete(p)}>حذف</button></div></div><div className="project-title"><span className={`project-avatar ${p.color}`}>{p.name.slice(0,1)}</span><div><h3>{p.name}</h3><small>{p.id} · {p.type}</small></div></div><div className="client-line"><Users size={15}/>{p.client}</div><div className="project-money-grid"><MoneyBox label="السعر بالعراقي" value={money(projectPriceIqd(p))}/><MoneyBox label="السعر بالدولار" value={usdMoney(projectPriceUsd(p))}/><MoneyBox label="المستلم بالعراقي" value={money(rIqd)}/><MoneyBox label="المستلم بالدولار" value={usdMoney(rUsd)}/><MoneyBox label="الباقي بالعراقي" value={money(Math.max(projectPriceIqd(p)-rIqd,0))}/><MoneyBox label="الباقي بالدولار" value={usdMoney(Math.max(projectPriceUsd(p)-rUsd,0))}/></div><div className="cost-breakdown"><h4>تفاصيل التكلفة والربح</h4><div className="cost-grid"><CostLine label="الدومين" iqd={domainIqd} usd={domainUsd}/><CostLine label="AI" iqd={aiIqd} usd={aiUsd}/><CostLine label="مصاريف أخرى" iqd={otherIqd} usd={otherUsd}/><CostLine label="إجمالي المصاريف" iqd={eIqd} usd={eUsd} strong/><CostLine label="الربح الصافي" iqd={profitIqd} usd={profitUsd} profit/></div></div><div className="card-progress"><div><span>نسبة الإنجاز</span><strong>{p.progress}%</strong></div><span className="progress"><i style={{width:`${p.progress}%`}}/></span></div><div className="project-card-foot"><span>التسليم المتوقع <b>{p.due}</b></span><button className="text-btn" onClick={onCopy}><Copy size={14}/> نسخ المعرف</button></div></div>})}</div></>}
+function Projects({projects,payments,expenses,onAdd,onCopy,onEdit,onDelete}){
+  const printOne=p=>printHtml(`تقرير ${p.name}`,projectReportMarkup(p,payments,expenses));
+  const printAll=()=>{
+    const total=projects.reduce((a,p)=>{const f=projectFinancials(p,payments,expenses);a.priceIqd+=projectPriceIqd(p);a.priceUsd+=projectPriceUsd(p);a.receivedIqd+=f.receivedIqd;a.receivedUsd+=f.receivedUsd;a.expensesIqd+=f.expensesIqd;a.expensesUsd+=f.expensesUsd;a.profitIqd+=f.profitIqd;a.profitUsd+=f.profitUsd;return a;},{priceIqd:0,priceUsd:0,receivedIqd:0,receivedUsd:0,expensesIqd:0,expensesUsd:0,profitIqd:0,profitUsd:0});
+    const summary=`<div class="header"><h1>تقرير جميع المشاريع</h1><div class="muted">عدد المشاريع: ${projects.length}</div></div><div class="meta"><div class="box"><span>إجمالي الاتفاقات IQD</span><b>${esc(money(total.priceIqd))}</b></div><div class="box"><span>إجمالي الاتفاقات USD</span><b>${esc(usdMoney(total.priceUsd))}</b></div><div class="box"><span>إجمالي المستلم IQD</span><b>${esc(money(total.receivedIqd))}</b></div><div class="box"><span>إجمالي المستلم USD</span><b>${esc(usdMoney(total.receivedUsd))}</b></div><div class="box"><span>إجمالي المصاريف IQD</span><b>${esc(money(total.expensesIqd))}</b></div><div class="box"><span>إجمالي المصاريف USD</span><b>${esc(usdMoney(total.expensesUsd))}</b></div><div class="box profit"><span>صافي الربح IQD</span><b>${esc(money(total.profitIqd))}</b></div><div class="box profit"><span>صافي الربح USD</span><b>${esc(usdMoney(total.profitUsd))}</b></div></div>`;
+    printHtml('تقرير جميع المشاريع',summary+projects.map(p=>projectReportMarkup(p,payments,expenses)).join(''));
+  };
+  return <><div className="page-head"><div><h1>المشاريع</h1><p>تفاصيل السعر والدفعات والمصاريف والربح لكل مشروع</p></div><div className="head-actions"><button className="btn ghost" onClick={printAll}><FileText size={17}/> طباعة تقرير الكل</button><button className="btn primary" onClick={onAdd}><Plus size={17}/> مشروع جديد</button></div></div><div className="toolbar panel"><div className="filter-search"><Search size={17}/><input placeholder="ابحث باسم المشروع أو العميل..."/></div><button className="btn ghost"><Tags size={16}/> كل الحالات</button><button className="btn ghost"><CalendarDays size={16}/> 2026</button></div><div className="project-cards">{projects.map(p=>{const f=projectFinancials(p,payments,expenses);return <div className="project-card panel" key={p.uid||p.id}><div className="project-card-top"><span className={`status ${statusClass(p.status)}`}>{p.status}</span><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="btn ghost" onClick={()=>printOne(p)}><FileText size={15}/> تقرير</button><button className="btn ghost" onClick={()=>onEdit(p)}>تعديل</button><button className="btn ghost" onClick={()=>onDelete(p)}>حذف</button></div></div><div className="project-title"><span className={`project-avatar ${p.color}`}>{p.name.slice(0,1)}</span><div><h3>{p.name}</h3><small>{p.id} · {p.type}</small></div></div><div className="client-line"><Users size={15}/>{p.client}</div><div className="project-money-grid"><MoneyBox label="السعر بالعراقي" value={money(projectPriceIqd(p))}/><MoneyBox label="السعر بالدولار" value={usdMoney(projectPriceUsd(p))}/><MoneyBox label="المستلم بالعراقي" value={money(f.receivedIqd)}/><MoneyBox label="المستلم بالدولار" value={usdMoney(f.receivedUsd)}/><MoneyBox label="الباقي بالعراقي" value={money(f.remainingIqd)}/><MoneyBox label="الباقي بالدولار" value={usdMoney(f.remainingUsd)}/></div><div className="cost-breakdown"><h4>تفاصيل التكلفة والربح</h4><div className="cost-grid"><CostLine label="الدومين" iqd={f.domainIqd} usd={f.domainUsd}/><CostLine label="AI" iqd={f.aiIqd} usd={f.aiUsd}/><CostLine label="مصاريف أخرى" iqd={f.otherIqd} usd={f.otherUsd}/><CostLine label="إجمالي المصاريف" iqd={f.expensesIqd} usd={f.expensesUsd} strong/><CostLine label="الربح الصافي" iqd={f.profitIqd} usd={f.profitUsd} profit/></div></div><div className="card-progress"><div><span>نسبة الإنجاز</span><strong>{p.progress}%</strong></div><span className="progress"><i style={{width:`${p.progress}%`}}/></span></div><div className="project-card-foot"><span>التسليم المتوقع <b>{p.due}</b></span><button className="text-btn" onClick={onCopy}><Copy size={14}/> نسخ المعرف</button></div></div>})}</div></>
+}
 function MoneyBox({label,value}){return <div className="money-box"><small>{label}</small><strong>{value}</strong></div>}
 function CostLine({label,iqd,usd,strong,profit}){return <div className={`cost-line ${strong?'strong':''} ${profit?'profit':''}`}><span>{label}</span><b>{money(iqd)}</b><b>{usdMoney(usd)}</b></div>}
 function Payments({projects,payments,setPayments,notify}){
