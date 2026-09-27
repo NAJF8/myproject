@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Activity, Archive, ArrowDownLeft, ArrowUpLeft, BarChart3, Bell, BriefcaseBusiness, CalendarDays, Check, ChevronLeft, CircleDollarSign, ClipboardList, Cloud, Copy, CreditCard, Database, FileText, FolderKanban, Gauge, Globe2, LayoutDashboard, Menu, MoreVertical, Plus, Receipt, Search, Settings, Sparkles, Tags, Users, WalletCards, X, Zap } from 'lucide-react';
 import './styles.css';
+import { auth, googleProvider, firebaseConfigured } from './firebase';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 
 const seedProjects = [
   { id:'PRJ-2026-001', name:'متجر إلكتروني للأغذية', client:'محمد أحمد', type:'متجر إلكتروني', status:'قيد البرمجة', price:1600000, received:980000, expenses:210000, progress:68, due:'2026/10/06', color:'mint' },
@@ -22,6 +24,40 @@ const nav = [
 ];
 const money = n => `${new Intl.NumberFormat('ar-IQ').format(n)} د.ع`;
 const statusClass = s => s === 'مكتمل' ? 'success' : s === 'بانتظار العميل' ? 'warning' : s === 'متوقف' ? 'danger' : 'info';
+
+
+function AuthGate({children}){
+  const [user,setUser]=useState(undefined);
+  const allowedEmail=(import.meta.env.VITE_ALLOWED_EMAIL||'').trim().toLowerCase();
+
+  useEffect(()=>{
+    if(!firebaseConfigured){ setUser(null); return; }
+    return onAuthStateChanged(auth,u=>setUser(u||null));
+  },[]);
+
+  if(!firebaseConfigured) return children;
+  if(user===undefined) return <div className="auth-screen"><div className="auth-card"><div className="brand-mark"><Sparkles size={22}/></div><h1>جاري التحقق...</h1><p>يتم التحقق من جلسة الدخول.</p></div></div>;
+
+  const login=async()=>{
+    try{
+      const result=await signInWithPopup(auth,googleProvider);
+      const email=(result.user?.email||'').toLowerCase();
+      if(allowedEmail && email!==allowedEmail){
+        await signOut(auth);
+        alert('هذا الحساب غير مصرح له بالدخول.');
+      }
+    }catch(err){
+      console.error(err);
+      alert('تعذر تسجيل الدخول بحساب Google.');
+    }
+  };
+
+  if(!user || (allowedEmail && (user.email||'').toLowerCase()!==allowedEmail)){
+    return <div className="auth-screen"><div className="auth-card"><div className="brand-mark"><Sparkles size={22}/></div><h1>تسجيل الدخول</h1><p>هذا النظام شخصي. سجّل الدخول بحساب Google المصرح به للمتابعة.</p><button className="btn primary google-login" onClick={login}>الدخول باستخدام Google</button></div></div>;
+  }
+
+  return <>{children}</>;
+}
 
 function App(){
   const [page,setPage] = useState('dashboard'); const [drawer,setDrawer]=useState(false); const [search,setSearch]=useState('');
@@ -74,4 +110,4 @@ function Payments({projects,payments,setPayments,notify}){
 
 function Placeholder({page,onAdd}){const meta={clients:['العملاء','ملفات العملاء والعلاقة المالية لكل عميل',Users],payments:['الدفعات','تتبع المستحقات والدفعات المكتملة',CreditCard],expenses:['المصاريف','مصروفات المشاريع والمصاريف العامة',Receipt],domains:['الدومينات والاشتراكات','تواريخ التجديد والتكاليف القادمة',Globe2],reports:['التقارير','قراءة أعمق لأداء المشاريع والربحية',BarChart3],settings:['الإعدادات','تخصيص النظام والنسخ الاحتياطي',Settings]}[page]||['الصفحة','قيد التجهيز',Gauge]; const Icon=meta[2];return <div className="placeholder panel"><div className="placeholder-icon"><Icon size={28}/></div><h1>{meta[0]}</h1><p>{meta[1]}</p><button className="btn primary" onClick={onAdd}><Plus size={17}/> إضافة جديد</button></div>}
 function Modal({title,close,children}){return <div className="modal-backdrop" onMouseDown={close}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button className="more" onClick={close}><X size={19}/></button></div>{children}</div></div>}
-createRoot(document.getElementById('root')).render(<App/>);
+createRoot(document.getElementById('root')).render(<AuthGate><App/></AuthGate>);
