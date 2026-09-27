@@ -35,7 +35,7 @@ jobs:
         run: npm run build
 
       - name: Verify build output
-        run: test -f dist/index.html && grep -q './assets/' dist/index.html
+        run: test -f dist/index.html && grep -q '/myproject/assets/' dist/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
