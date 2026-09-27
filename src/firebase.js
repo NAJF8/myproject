@@ -2,29 +2,19 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: 'AIzaSyBeBjmVD-pkUueZapn65stLuwIc7rbCTik',
+  authDomain: 'es11-5db8c.firebaseapp.com',
+  databaseURL: 'https://es11-5db8c-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'es11-5db8c',
+  storageBucket: 'es11-5db8c.firebasestorage.app',
+  messagingSenderId: '740551885181',
+  appId: '1:740551885181:web:e45f71f211ff20807f0c14',
+  measurementId: 'G-PGPK7JNTS4',
 };
 
-export const firebaseConfigured = Boolean(
-  firebaseConfig.apiKey &&
-  firebaseConfig.authDomain &&
-  firebaseConfig.projectId &&
-  firebaseConfig.appId
-);
+const app = initializeApp(firebaseConfig);
 
-let auth = null;
-let googleProvider = null;
-
-if (firebaseConfigured) {
-  const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-  googleProvider.setCustomParameters({ prompt: 'select_account' });
-}
-
-export { auth, googleProvider };
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+export const firebaseConfigured = true;
