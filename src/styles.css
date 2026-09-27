@@ -285,3 +285,20 @@ body.modal-open .app-shell{height:100vh;overflow:hidden}
 .cost-line.strong{padding-top:10px;border-top:1px solid #d7cfc3}
 .cost-line.profit{background:#e8f0ec;border:1px solid #cfddd6;border-radius:8px;padding:9px;color:#315f54}
 .cost-line.profit span,.cost-line.profit b{color:#315f54;font-weight:700}
+
+.reports-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.report-card{padding:22px}
+.report-icon{width:46px;height:46px;border-radius:12px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin-bottom:14px}
+.report-card h2{margin:0 0 7px;font-size:18px}
+.report-card p{margin:0 0 18px;color:var(--muted);font-size:11px;line-height:1.8}
+.report-select{display:grid;gap:7px;font-size:11px;color:#626a67;margin-bottom:14px}
+.report-select select{padding:11px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text)}
+.report-preview-mini{display:grid;gap:4px;background:#f7f3ec;border:1px solid #e4ddd2;border-radius:9px;padding:11px;margin-bottom:14px}
+.report-preview-mini strong{font-size:12px}.report-preview-mini span{font-size:10px;color:var(--muted)}
+.report-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.report-totals div{background:#f7f3ec;border:1px solid #e4ddd2;border-radius:9px;padding:10px}
+.report-totals span{display:block;font-size:9px;color:var(--muted)}
+.report-totals strong{display:block;margin-top:4px;font-size:12px}
+.report-note{margin-top:16px;padding:18px}
+.report-note p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.8}
+@media(max-width:720px){.reports-grid{grid-template-columns:1fr}.report-totals{grid-template-columns:1fr}}
