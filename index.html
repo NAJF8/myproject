@@ -16,6 +16,9 @@
       #boot-card p{margin:0;color:#777;line-height:1.7;font-size:14px}
     </style>
     <script>
+      if (location.pathname === '/myproject') {
+        location.replace('/myproject/' + location.search + location.hash);
+      }
       window.__appMounted = false;
       window.addEventListener('error', function (event) {
         var card = document.getElementById('boot-card');
@@ -33,7 +36,7 @@
   </head>
   <body>
     <div id="root">
-      <div id="boot-fallback"><div id="boot-card"><h1>جاري فتح النظام...</h1><p>إذا بقت هذه الرسالة أكثر من ثوانٍ، سوِّ Ctrl + F5.</p></div></div>
+      <div id="boot-fallback"><div id="boot-card"><h1>جاري فتح النظام...</h1><p>إذا استمر التحميل، حدّث الصفحة من زر إعادة التحميل في المتصفح.</p></div></div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
