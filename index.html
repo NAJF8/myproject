@@ -3,8 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b1426" />
+    <meta name="theme-color" content="#f4f1ea" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>مركز التحكم الشخصي</title>
+    <style>
+      html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#f4f1ea;color:#273038}
+      #boot-fallback{min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
+      #boot-card{max-width:460px;background:#fffdf8;border:1px solid #ded7cc;border-radius:16px;padding:28px;text-align:center;box-shadow:0 10px 30px rgba(50,45,38,.08)}
+      #boot-card h1{margin:0 0 10px;font-size:22px}
+      #boot-card p{margin:0;color:#777;line-height:1.7;font-size:14px}
+    </style>
+    <script>
+      window.__appMounted = false;
+      window.addEventListener('error', function (event) {
+        var card = document.getElementById('boot-card');
+        if (card && !window.__appMounted) {
+          card.innerHTML = '<h1>تعذر تشغيل الواجهة</h1><p>صار خطأ بتحميل ملفات التطبيق. حدّث الصفحة تحديثاً كاملاً Ctrl + F5. إذا استمر الخطأ، أرسل لقطة من Console.</p>';
+        }
+      });
+      window.addEventListener('unhandledrejection', function () {
+        var card = document.getElementById('boot-card');
+        if (card && !window.__appMounted) {
+          card.innerHTML = '<h1>تعذر تشغيل الواجهة</h1><p>صار خطأ أثناء بدء التطبيق. جرّب Ctrl + F5.</p>';
+        }
+      });
+    </script>
   </head>
-  <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
+  <body>
+    <div id="root">
+      <div id="boot-fallback"><div id="boot-card"><h1>جاري فتح النظام...</h1><p>إذا بقت هذه الرسالة أكثر من ثوانٍ، سوِّ Ctrl + F5.</p></div></div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
