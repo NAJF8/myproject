@@ -246,3 +246,32 @@ body.modal-open .app-shell{height:100vh;overflow:hidden}
   .quick-grid button{font-size:10px}.project-cards{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}.filter-search{max-width:none;flex-basis:100%}
   .project-card{padding:14px}.finance-row strong{font-size:10px}.project-card-foot{font-size:8px}.toast{left:14px;right:14px;bottom:14px;justify-content:center}
 }
+
+.money-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.currency-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:7px}
+.currency-pair>div{background:#f7f3ec;border:1px solid #e4ddd2;border-radius:9px;padding:8px 10px}
+.currency-pair small{display:block;color:#8a908d;font-size:9px}
+.currency-pair strong{display:block;color:#2e3639;font-size:14px;margin-top:2px}
+.table-money{display:grid;gap:3px}
+.table-money span:last-child{color:#4f6f87}
+.project-money-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:16px 0}
+.money-box{background:#f7f3ec;border:1px solid #e6dfd5;border-radius:9px;padding:10px}
+.money-box small{display:block;color:#848a87;font-size:9px}
+.money-box strong{display:block;margin-top:4px;color:#30383b;font-size:12px}
+.selector-panel{padding:20px;margin-bottom:18px}
+.selector-panel label{display:grid;gap:8px;font-weight:700}
+.selector-panel select{padding:12px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text)}
+.payment-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.money-summary{background:#fffdf8;border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.money-summary span{display:block;color:var(--muted);font-size:10px}
+.money-summary strong{display:block;margin-top:7px;font-size:18px}
+.money-summary.blue{border-top:3px solid var(--blue)}.money-summary.mint{border-top:3px solid var(--green)}.money-summary.orange{border-top:3px solid var(--terracotta)}
+.payment-form-panel,.payments-history{margin-bottom:18px}
+.section-heading h2,.payments-history h2{margin:0;font-size:18px}.section-heading p{margin:3px 0 18px;color:var(--muted);font-size:11px}
+.empty-copy{color:var(--muted)}
+.expense-projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.expense-project-card{background:#fffdf8;border:1px solid var(--border);border-radius:12px;padding:15px;text-align:right;box-shadow:var(--shadow)}
+.expense-project-card.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(63,111,99,.08)}
+.expense-project-card strong,.expense-project-card span{display:block}.expense-project-card span{color:var(--muted);font-size:10px;margin-top:4px}
+.expense-project-card div{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}.expense-project-card b{font-size:11px}
+@media(max-width:720px){.money-fields,.currency-pair,.project-money-grid{grid-template-columns:1fr 1fr}.payment-summary{grid-template-columns:1fr 1fr}.expense-projects-grid{grid-template-columns:1fr}}
