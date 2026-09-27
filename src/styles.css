@@ -10,3 +10,24 @@
 .auth-card h1{margin:0 0 10px;font-size:28px}
 .auth-card p{margin:0 0 24px;color:#64748b;line-height:1.8}
 .google-login{width:100%;justify-content:center;min-height:48px}
+
+
+body.modal-open{
+  overflow:hidden;
+  touch-action:none;
+}
+body.modal-open .app-shell{
+  height:100vh;
+  overflow:hidden;
+}
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.modal{
+  max-height:calc(100vh - 40px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
