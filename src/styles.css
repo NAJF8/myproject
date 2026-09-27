@@ -275,3 +275,13 @@ body.modal-open .app-shell{height:100vh;overflow:hidden}
 .expense-project-card strong,.expense-project-card span{display:block}.expense-project-card span{color:var(--muted);font-size:10px;margin-top:4px}
 .expense-project-card div{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}.expense-project-card b{font-size:11px}
 @media(max-width:720px){.money-fields,.currency-pair,.project-money-grid{grid-template-columns:1fr 1fr}.payment-summary{grid-template-columns:1fr 1fr}.expense-projects-grid{grid-template-columns:1fr}}
+
+.cost-breakdown{margin:16px 0;padding:13px;background:#f7f3ec;border:1px solid #e4ddd2;border-radius:10px}
+.cost-breakdown h4{margin:0 0 10px;font-size:12px;color:#454d4b}
+.cost-grid{display:grid;gap:7px}
+.cost-line{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #e7e0d6;font-size:10px}
+.cost-line:last-child{border-bottom:0}
+.cost-line span{color:#737a77}.cost-line b{font-size:10px;color:#39413f}
+.cost-line.strong{padding-top:10px;border-top:1px solid #d7cfc3}
+.cost-line.profit{background:#e8f0ec;border:1px solid #cfddd6;border-radius:8px;padding:9px;color:#315f54}
+.cost-line.profit span,.cost-line.profit b{color:#315f54;font-weight:700}
